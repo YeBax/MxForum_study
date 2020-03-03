@@ -1,12 +1,56 @@
 import json
 import random
+import jwt
 from functools import partial
 from tornado.web import RequestHandler
-from .forms import SmsCodeForm, RegisterForm
+from .forms import SmsCodeForm, RegisterForm, LoginForm
 from apps.utils.AsyncYunPian import AsyncYunPian
 from MxForum.handler import RedisHandler
 from .models import User
 
+
+class LoginHandler(RedisHandler):
+    async def post(self):
+        re_data = {
+
+        }
+        param = self.request.body.decode("utf-8")
+        param = json.loads(param)
+        form = LoginForm.from_json(param)
+        if form.validate():
+            mobile = form.mobile.data
+            password = form.password.data
+
+            try:
+                user = await self.application.objects.get(User, mobile=mobile)
+                if not user.password.check_password(password):
+                    self.set_status(400)
+                    re_data["non_fields"] = "用户名或密码错误"
+                else:
+                    # 登录成功
+                    # 1.是不是 rest api 只能使用 jwt （不对）
+                    # set_cookie
+                    # session 实际上是服务器随机生成的一段字符串，保存在服务器上
+                    # JWT 本质还是加密技术，直接解密 userid，user，name，密码不要放进去
+                    # 生成 json web token
+                    from datetime import datetime
+                    payload = {
+                        "id": user.id,
+                        "nick_name": user.nick_name,
+                        "exp": datetime.utcnow() # 必须用UTC时间，jwt有内部检测时间，就是UTC时间
+                    }
+                    token = jwt.encode(payload, self.settings["secret_key"], algorithm="HS256")
+                    re_data["id"] = user.id
+                    if user.nick_name is not None:
+                        re_data["nick_name"] = user.nick_name
+                    else:
+                        re_data["nick_name"] = user.mobile
+                    re_data["token"] = token.decode("utf-8")
+            except User.DoesNotExist as e:
+                self.set_status(400)
+                re_data["mobile"] = "用户不存在"
+
+            self.finish(re_data)
 
 class SmsHandler(RedisHandler):
     def generate_code(self):

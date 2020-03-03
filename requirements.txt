@@ -4,3 +4,4 @@ peewee
 async-peewee
 pymysql
 aiomysql
+PyJWT

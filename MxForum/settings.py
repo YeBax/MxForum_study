@@ -1,7 +1,8 @@
 settings = {
     "redis": {
         "host": "127.0.0.1"
-    }
+    },
+    "secret_key":"SFSAF$#%$%ADFSDF#RD"
 }
 
 import peewee_async
@@ -12,3 +13,4 @@ database = peewee_async.MySQLDatabase(
     password="laso_bioinfo",
     database="webserver",
 )
+
