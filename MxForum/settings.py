@@ -2,7 +2,8 @@ settings = {
     "redis": {
         "host": "127.0.0.1"
     },
-    "secret_key":"SFSAF$#%$%ADFSDF#RD"
+    "secret_key":"SFSAF$#%$%ADFSDF#RD",
+    "jwt_expire":7*24*3600
 }
 
 import peewee_async

@@ -1,4 +1,5 @@
 from apps.users.models import User
+from apps.community.models import CommentLike,CommunityGroup,CommunityGroupMember,Post,PostComment
 from peewee import MySQLDatabase
 
 database = MySQLDatabase(
@@ -11,7 +12,8 @@ database = MySQLDatabase(
 
 
 def init():
-    database.create_table(User)
+    # database.create_tables(User)
+    database.create_tables([ CommentLike,CommunityGroup,CommunityGroupMember,Post,PostComment])
 
 
 if __name__ == '__main__':
